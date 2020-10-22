@@ -12,4 +12,4 @@ A context menu utility to move everyone from your current voice channel to anoth
 
 # Support
 
--  eternal#0001
+-  eternal#1000
