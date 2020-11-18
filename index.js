@@ -15,9 +15,9 @@ module.exports = class VoiceChatMoveAll extends Plugin {
    async startPlugin() {
       inject('vc-move-all', ChannelContextMenu, 'default', (args, res) => {
          let channel = args[0].channel;
-         if (!channel.guild_id || !this.canMoveAll(channel)) return res;
+         if (!channel || !channel.guild_id || !this.canMoveAll(channel)) return res;
          let currentChannel = this.getVoiceChannel();
-         if (currentChannel.members.length < 2) return res;
+         if (!currentChannel || currentChannel.members.length < 2) return res;
 
          let item = React.createElement(Menu.MenuItem, {
             action: async () => {
@@ -74,6 +74,7 @@ module.exports = class VoiceChatMoveAll extends Plugin {
 
    getVoiceChannel() {
       let channel = getChannel(getVoiceChannelId());
-      return { channel: channel, members: this.getVoiceUserIds(channel.guild_id, channel.id) };
+      if (channel) return { channel: channel, members: this.getVoiceUserIds(channel.guild_id, channel.id) };
+      return null
    }
 };
