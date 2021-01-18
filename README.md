@@ -9,7 +9,3 @@ A context menu utility to move everyone from your current voice channel to anoth
 # Installation
 
 -  `git clone https://github.com/slow/vc-move-all`
-
-# Support
-
--  eternal#1000
