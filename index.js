@@ -75,6 +75,6 @@ module.exports = class VoiceChatMoveAll extends Plugin {
    getVoiceChannel() {
       let channel = getChannel(getVoiceChannelId());
       if (channel) return { channel: channel, members: this.getVoiceUserIds(channel.guild_id, channel.id) };
-      return null
+      return null;
    }
 };
