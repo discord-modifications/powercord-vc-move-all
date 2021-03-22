@@ -2,7 +2,7 @@ const { getModule, getAllModules, React, constants } = require('powercord/webpac
 const ChannelContextMenu = getAllModules((m) => m.default && m.default.displayName == 'ChannelListVoiceChannelContextMenu', false)[0];
 const DiscordPermissions = getModule(['Permissions'], false).Permissions;
 const { getVoiceChannelId } = getModule(['getVoiceChannelId'], false);
-const { getVoiceStates } = getModule(['getVoiceStates'], false);
+const { getVoiceStatesForChannel } = getModule(['getVoiceStatesForChannel'], false);
 const { inject, uninject } = require('powercord/injector');
 const { patch } = getModule(['APIError', 'patch'], false);
 const Menu = getModule(['MenuGroup', 'MenuItem'], false);
@@ -31,7 +31,6 @@ module.exports = class VoiceChatMoveAll extends Plugin {
                      await sleep(e.body.retry_after * 1000);
                      currentChannel.members.unshift(member);
                   });
-                  await sleep(350);
                }
             },
             id: 'move-all-vc',
@@ -49,18 +48,18 @@ module.exports = class VoiceChatMoveAll extends Plugin {
       uninject('vc-move-all');
    }
 
-   getVoiceUserIds(guild, channel) {
-      return Object.values(getVoiceStates(guild)).filter((c) => c.channelId == channel).map((a) => a.userId);
+   getVoiceUserIds(channel) {
+      return Object.keys(getVoiceStatesForChannel(channel));
    }
 
    canMoveAll(channel) {
-      let currentChannel = this.getVoiceChannel();
-      let channelCount = this.getVoiceCount(channel);
+      let instance = this.getVoiceChannel();
+
       if (
-         this.canJoinAndMove(channel) && (Permissions.can(DiscordPermissions.CONNECT, channel) ||
-            channel.userLimit == 0 || channel.userLimit - currentChannel.count > channelCount + currentChannel.count
-         )
+         (instance && instance.channel.id != channel.id && this.canJoinAndMove(channel)) &&
+         (channel.userLimit == 0 || channel.userLimit - instance.count >= 0)
       ) return true;
+
       return false;
    }
 
@@ -68,13 +67,10 @@ module.exports = class VoiceChatMoveAll extends Plugin {
       return Permissions.can(DiscordPermissions.CONNECT, channel) && Permissions.can(DiscordPermissions.MOVE_MEMBERS, channel);
    }
 
-   getVoiceCount(guild, channel) {
-      return Object.values(getVoiceStates(guild)).filter((c) => c.channelId == channel).length;
-   }
-
    getVoiceChannel() {
       let channel = getChannel(getVoiceChannelId());
-      if (channel) return { channel: channel, members: this.getVoiceUserIds(channel.guild_id, channel.id) };
+      let members = this.getVoiceUserIds(channel.id);
+      if (channel) return { channel, members, count: members.length };
       return null;
    }
 };
