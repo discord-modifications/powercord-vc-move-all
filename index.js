@@ -1,15 +1,15 @@
-const { getModule, getAllModules, React, constants } = require('powercord/webpack');
-const ChannelContextMenu = getAllModules((m) => m.default && m.default.displayName == 'ChannelListVoiceChannelContextMenu', false)[0];
-const DiscordPermissions = getModule(['Permissions'], false).Permissions;
-const { getVoiceChannelId } = getModule(['getVoiceChannelId'], false);
-const { getVoiceStatesForChannel } = getModule(['getVoiceStatesForChannel'], false);
-const { inject, uninject } = require('powercord/injector');
-const { patch } = getModule(['APIError', 'patch'], false);
-const Menu = getModule(['MenuGroup', 'MenuItem'], false);
-const Permissions = getModule(['getHighestRole'], false);
-const { getChannel } = getModule(['getChannel'], false);
-const { Plugin } = require('powercord/entities');
-const { sleep } = require('powercord/util');
+const { getModule, getAllModules, React } = require("powercord/webpack");
+const ChannelContextMenu = getAllModules((m) => m.default && m.default.displayName == "ChannelListVoiceChannelContextMenu", false)[0];
+const DiscordPermissions = getModule(["Permissions"], false).Permissions;
+const { getVoiceChannelId } = getModule(["getVoiceChannelId"], false);
+const { getVoiceStatesForChannel } = getModule(["getVoiceStatesForChannel"], false);
+const { setChannel } = getModule(["setChannel"], false);
+const { inject, uninject } = require("powercord/injector");
+const Menu = getModule(["MenuGroup", "MenuItem"], false);
+const Permissions = getModule(["getHighestRole"], false);
+const { getChannel } = getModule(["getChannel"], false);
+const { Plugin } = require("powercord/entities");
+const { sleep } = require("powercord/util");
 
 module.exports = class VoiceChatMoveAll extends Plugin {
    async startPlugin() {
@@ -22,14 +22,9 @@ module.exports = class VoiceChatMoveAll extends Plugin {
          let item = React.createElement(Menu.MenuItem, {
             action: async () => {
                for (const member of currentChannel.members) {
-                  await patch({
-                     url: constants.Endpoints.GUILD_MEMBER(channel.guild_id, member),
-                     body: {
-                        channel_id: channel.id
-                     }
-                  }).catch(async (e) => {
-                     await sleep(e.body.retry_after * 1000);
-                     currentChannel.members.unshift(member);
+                  setChannel(channel.guild_id, member, channel.id)?.catch(async (e) => {
+                      await sleep(e.body.retry_after * 1000);
+                      currentChannel.members.unshift(member);
                   });
                }
             },
