@@ -22,7 +22,7 @@ module.exports = class VoiceChatMoveAll extends Plugin {
          let item = React.createElement(Menu.MenuItem, {
             action: async () => {
                for (const member of currentChannel.members) {
-                  setChannel(channel.guild_id, member, channel.id)?.catch(async (e) => {
+                  await setChannel(channel.guild_id, member, channel.id)?.catch(async (e) => {
                       await sleep(e.body.retry_after * 1000);
                       currentChannel.members.unshift(member);
                   });
