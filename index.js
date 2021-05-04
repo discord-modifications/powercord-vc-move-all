@@ -56,9 +56,10 @@ module.exports = class VoiceChatMoveAll extends Plugin {
       let instance = this.getVoiceChannel();
 
       if (
-         (instance && instance.channel.id != channel.id && this.canJoinAndMove(channel)) &&
-         (channel.userLimit == 0 || channel.userLimit - instance.count >= 0)
-      ) return true;
+            instance?.channel.id !== channel.id && 
+            instance?.channel.guild_id === channel.guild_id &&
+            this.canJoinAndMove(channel) && (channel.userLimit == 0 || channel.userLimit - instance.count >= 0)
+         ) return true;
 
       return false;
    }
