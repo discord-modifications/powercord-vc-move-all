@@ -1,13 +1,14 @@
 const { getModule, getAllModules, React, constants } = require('powercord/webpack');
 const ChannelContextMenu = getAllModules((m) => m.default && m.default.displayName == 'ChannelListVoiceChannelContextMenu', false)[0];
+const { getVoiceStatesForChannel } = getModule(['getVoiceStatesForChannel'], false);
 const DiscordPermissions = getModule(['Permissions'], false).Permissions;
 const { getVoiceChannelId } = getModule(['getVoiceChannelId'], false);
-const { getVoiceStatesForChannel } = getModule(['getVoiceStatesForChannel'], false);
 const { inject, uninject } = require('powercord/injector');
 const { patch } = getModule(['APIError', 'patch'], false);
 const Menu = getModule(['MenuGroup', 'MenuItem'], false);
 const Permissions = getModule(['getHighestRole'], false);
 const { getChannel } = getModule(['getChannel'], false);
+const { getGuild } = getModule(['getGuild'], false);
 const { Plugin } = require('powercord/entities');
 const { sleep } = require('powercord/util');
 
@@ -56,10 +57,11 @@ module.exports = class VoiceChatMoveAll extends Plugin {
       let instance = this.getVoiceChannel();
 
       if (
-            instance?.channel.id !== channel.id && 
-            instance?.channel.guild_id === channel.guild_id &&
-            this.canJoinAndMove(channel) && (channel.userLimit == 0 || channel.userLimit - instance.count >= 0)
-         ) return true;
+         instance?.channel.id !== channel.id &&
+         instance?.channel.guild_id === channel.guild_id &&
+         (Permissions.can(DiscordPermissions.ADMINISTRATOR, getGuild(channel.guild_id)) ||
+         (this.canJoinAndMove(channel) && (channel.userLimit == 0 || channel.userLimit - instance.count >= 0)))
+      ) return true;
 
       return false;
    }
