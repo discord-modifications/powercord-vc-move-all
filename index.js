@@ -50,6 +50,7 @@ module.exports = class VoiceChatMoveAll extends Plugin {
    }
 
    getVoiceUserIds(channel) {
+      if (!channel) return null;
       return Object.keys(getVoiceStatesForChannel(channel));
    }
 
@@ -72,8 +73,8 @@ module.exports = class VoiceChatMoveAll extends Plugin {
 
    getVoiceChannel() {
       let channel = getChannel(getVoiceChannelId());
-      let members = this.getVoiceUserIds(channel.id);
-      if (channel) return { channel, members, count: members.length };
+      let members = this.getVoiceUserIds(channel?.id);
+      if (channel && members) return { channel, members, count: members.length };
       return null;
    }
 };
