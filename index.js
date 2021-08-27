@@ -18,7 +18,7 @@ module.exports = class VoiceChatMoveAll extends Plugin {
          let channel = args[0].channel;
          if (!channel || !channel.guild_id || !this.canMoveAll(channel)) return res;
          let currentChannel = this.getVoiceChannel();
-         if (!currentChannel || currentChannel.members.length < 2) return res;
+         if (!currentChannel) return res;
 
          let item = React.createElement(Menu.MenuItem, {
             action: async () => {
